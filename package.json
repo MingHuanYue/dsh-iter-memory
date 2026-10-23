@@ -1,0 +1,69 @@
+{
+  "name": "dsh-tide-whisper",
+  "version": "0.1.0",
+  "description": "潮声：让 DSH 里的 AI 不定时自己开口——随机间隔、随机沉默，配设置页开关",
+  "license": "MIT",
+  "author": "MingHuanYue",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MingHuanYue/dsh-tide-whisper.git"
+  },
+  "homepage": "https://github.com/MingHuanYue/dsh-tide-whisper#readme",
+  "bugs": {
+    "url": "https://github.com/MingHuanYue/dsh-tide-whisper/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "proactive",
+    "companion",
+    "reminder",
+    "ai-companion"
+  ],
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test tests/core.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "slots"
+      ],
+      "external": [
+        "react"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "dsh": ">=0.1.7-rc.1",
+    "node": ">=22"
+  }
+}
