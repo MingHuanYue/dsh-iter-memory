@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { MINUTE, DEFAULT_CFG, pickDelayMs, hourOf, inWindow, nextWindowStart, dayKey, decide } from '../lib/core.js'
+import { MINUTE, DEFAULT_CFG, ANGLES, pickDelayMs, hourOf, inWindow, nextWindowStart, dayKey, decide, composeWhisper, pickAngle, segmentsFor, gapMs, clockHHMM } from '../lib/core.js'
 
 const cfg = { ...DEFAULT_CFG }
 const at = (h, m = 0) => new Date(2026, 9, 23, h, m, 0, 0).getTime()
@@ -79,4 +79,65 @@ test('decide：掷到开口，计数 +1，下一次至少隔一个冷却', () =>
 test('decide：跨天把计数归零', () => {
   const v = decide(cfg, { day: '2026-10-22', spoken: 9 }, at(12), () => 0)
   assert.equal(v.spoken, 1) // 旧计数清零后从 0 起算，掷到开口 → 1
+})
+// ── v0.2：注入文本 ──
+test('composeWhisper：带时间/周几/上次开口/上次方向，且不给成品句', () => {
+  const now = at(21, 7)
+  const w = composeWhisper({
+    now, rnd: () => 0, lastSpokenAt: now - 47 * MINUTE, lastUserAt: now - 20 * MINUTE,
+    lastDirection: '说了句自己有点困', lastDirectionRemembered: true, unanswered: 1,
+    style: '',
+  })
+  assert.match(w.prompt, /21:07/)
+  assert.match(w.prompt, /周五/)
+  assert.match(w.prompt, /47 分钟前/)
+  assert.match(w.prompt, /20 分钟没出声/)
+  assert.match(w.prompt, /说了句自己有点困/)
+  assert.match(w.prompt, /他没接这句/)
+  assert.match(w.prompt, /方向（只是个方向，别照抄字面）：/)
+  assert.ok(w.direction.length > 0)
+})
+
+test('composeWhisper：第一次开口 / 他刚说完 / 连着没被接的措辞', () => {
+  const a = composeWhisper({ now: at(10, 0), rnd: () => 0, lastSpokenAt: 0, lastUserAt: 0, unanswered: 0 })
+  assert.match(a.prompt, /第一次/)
+  assert.match(a.prompt, /他今天还没跟你说话/)
+  const b = composeWhisper({ now: at(10, 0), rnd: () => 0, lastSpokenAt: at(9, 0), lastUserAt: at(9, 58), unanswered: 3, lastDirection: '问了他吃没吃', lastDirectionRemembered: true })
+  assert.match(b.prompt, /他刚刚还在跟你说话/)
+  assert.match(b.prompt, /连着 3 次/)
+})
+
+test('composeWhisper：约束里不许提定时/插件，也不许编事件', () => {
+  const w = composeWhisper({ now: at(10, 0), rnd: () => 0 })
+  assert.match(w.prompt, /别提定时/)
+  assert.match(w.prompt, /不许编造/)
+  assert.match(w.prompt, /一两句就停/)
+  assert.equal(w.prompt.includes('到点了'), false)
+})
+
+test('composeWhisper：style 拼进语气要求', () => {
+  const w = composeWhisper({ now: at(10, 0), rnd: () => 0, style: '别用感叹号' })
+  assert.match(w.prompt, /语气要求：别用感叹号/)
+})
+
+test('pickAngle 避开最近用过的方向', () => {
+  const avoid = ANGLES.slice(0, ANGLES.length - 1)
+  for (let i = 0; i < 20; i++) {
+    const a = pickAngle(Math.random, avoid)
+    assert.equal(avoid.includes(a), false)
+  }
+  // 全避开了也得给一个
+  assert.ok(pickAngle(() => 0, ANGLES.slice()))
+})
+
+test('segmentsFor / gapMs 的边界', () => {
+  assert.equal(segmentsFor({ multiSegmentProb: 0 }, () => 0), 1)
+  assert.equal(segmentsFor({ multiSegmentProb: 1 }, () => 0.999), 2)
+  assert.equal(gapMs({ gapMinSeconds: 8, gapMaxSeconds: 40 }, () => 0), 8000)
+  assert.equal(gapMs({ gapMinSeconds: 8, gapMaxSeconds: 40 }, () => 0.999999), 40000)
+  assert.equal(gapMs({ gapMinSeconds: 0, gapMaxSeconds: 0 }, () => 0), 1000)
+})
+
+test('clockHHMM 补零', () => {
+  assert.equal(clockHHMM(at(9, 5)), '09:05')
 })

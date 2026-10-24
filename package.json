@@ -1,7 +1,7 @@
 {
   "name": "dsh-tide-whisper",
-  "version": "0.1.0",
-  "description": "潮声：让 DSH 里的 AI 不定时自己开口——随机间隔、随机沉默，配设置页开关",
+  "version": "0.2.0",
+  "description": "潮声：让 DSH 里的 AI 不定时自己开口——随机间隔、随机沉默，开口时注入处境与约束而不是固定台词，配设置页开关",
   "license": "MIT",
   "author": "MingHuanYue",
   "type": "module",
