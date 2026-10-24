@@ -1,17 +1,17 @@
 {
-  "name": "dsh-tide-whisper",
-  "version": "0.2.0",
-  "description": "潮声：让 DSH 里的 AI 不定时自己开口——随机间隔、随机沉默，开口时注入处境与约束而不是固定台词，配设置页开关",
+  "name": "dsh-iter-memory",
+  "version": "1.0.0",
+  "description": "迭代记忆：把我的状态和开口合成一条线——潮位会自己退回基线，不定时的主动开口读它、也改它，配一张 24 小时曲线和设置页",
   "license": "MIT",
   "author": "MingHuanYue",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MingHuanYue/dsh-tide-whisper.git"
+    "url": "git+https://github.com/MingHuanYue/dsh-iter-memory.git"
   },
-  "homepage": "https://github.com/MingHuanYue/dsh-tide-whisper#readme",
+  "homepage": "https://github.com/MingHuanYue/dsh-iter-memory#readme",
   "bugs": {
-    "url": "https://github.com/MingHuanYue/dsh-tide-whisper/issues"
+    "url": "https://github.com/MingHuanYue/dsh-iter-memory/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -21,8 +21,10 @@
     "dsh-plugin",
     "proactive",
     "companion",
-    "reminder",
-    "ai-companion"
+    "ai-companion",
+    "mood",
+    "state",
+    "memory"
   ],
   "main": "lib/index.js",
   "exports": {
