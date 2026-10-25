@@ -6,6 +6,7 @@ import {
   pickDelayMs, hourOf, inWindow, nextWindowStart, dayKey, clockHHMM, weekdayCN,
   decayedLevel, moodLabel, nudgeMood, setMood, moodFactor, effectiveSpeakProb,
   pushMoodPoint, curvePoints, pickAngle, composeWhisper, segmentsFor, gapMs, decide,
+  memoryBridgeStep,
 } from '../lib/core.js'
 
 const cfg = (o) => ({ ...DEFAULT_CFG, ...(o || {}) })
@@ -263,4 +264,34 @@ test('decide：潮位低的时候同样一次骰子更容易忍住', () => {
   assert.equal(decide(c, session(), now, { ...roll, moodLevel: 0 }).reason, 'silent')
   // 潮位 1 → 有效概率 0.9 → 0.4 通过
   assert.equal(decide(c, session(), now, { ...roll, moodLevel: 1 }).reason, 'speak')
+})
+
+// ───────────── 跟潮汐记忆搭的那条线 ─────────────
+
+test('memoryBridgeStep：它多命中一条我就抬一点，同样的事只抬一次', () => {
+  const c = cfg({ memoryBridge: true, moodMemoryBoost: 0.05 })
+  const first = memoryBridgeStep(0, 1, c)
+  assert.equal(first.boost, 0.05)
+  assert.equal(first.seen, 1)
+  // 同一个 seen 再走一遍不该重复加分
+  assert.equal(memoryBridgeStep(first.seen, 1, c).boost, 0)
+})
+
+test('memoryBridgeStep：一次涨很多也有上限，别一晚上跳到顶', () => {
+  const c = cfg({ moodMemoryBoost: 0.05 })
+  assert.equal(memoryBridgeStep(0, 10, c).boost, 0.15)
+  const big = cfg({ moodMemoryBoost: 0.3 })
+  assert.equal(memoryBridgeStep(0, 5, big).boost, 0.2)
+})
+
+test('memoryBridgeStep：跨天归零只是把计数重设，不该扣分', () => {
+  const c = cfg({ moodMemoryBoost: 0.05 })
+  const s = memoryBridgeStep(7, 0, c)
+  assert.equal(s.boost, 0)
+  assert.equal(s.seen, 0)
+})
+
+test('memoryBridgeStep：关掉搭桥就完全不动', () => {
+  const c = cfg({ memoryBridge: false, moodMemoryBoost: 0.05 })
+  assert.equal(memoryBridgeStep(0, 3, c).boost, 0)
 })

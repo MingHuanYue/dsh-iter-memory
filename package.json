@@ -1,7 +1,7 @@
 {
   "name": "dsh-iter-memory",
-  "version": "1.0.1",
-  "description": "迭代记忆：把我的状态和开口合成一条线——潮位会自己退回基线，不定时的主动开口读它、也改它，配一张 24 小时曲线和设置页",
+  "version": "1.1.0",
+  "description": "迭代记忆：记我自己。潮位会自己退回基线，不定时的那句读它、也改它；潮汐记忆翻出来的旧事被用上了，这边也会好受一点",
   "license": "MIT",
   "author": "MingHuanYue",
   "type": "module",
