@@ -70,8 +70,9 @@ dsh plugin --profile desktop add "link:D:/DSH插件/projects/dsh-iter-memory"
 | `moodInWhisper` | `true` | 开口时是否把当前状态注入进去。 |
 | `style` | 空 | 语气要求，拼进注入文本。 |
 | `onlyActiveSession` | `true` | 只在最近用过的那个对话里开口。别的会话不吭声，只把各自的下一次往后挪；你换到哪个对话，哪个接手。 |
-| `memoryBridge` | `true` | 潮汐记忆的命中让潮位抬一点。没装潮汐记忆时这项什么也不做。 |
-| `moodMemoryBoost` | 0.05 | 每多命中一条抬多少，一次最多 0.2。 |
+| `memoryBridge` | `true` | 潮汐记忆的注入让潮位抬一点。没装潮汐记忆时这项什么也不做。 |
+| `moodMemoryBoost` | 0.05 | 它那边多注入一次，抬多少。按「次」算：一次对话里想起点什么只算一下，不管那次翻出来几条。 |
+| `moodMemoryCeiling` | 0.75 | 记忆这条线最多抬到这儿。剩下的那截留给你真跟我说话——不然曲线永远是顶到头的一根直线。 |
 
 ## 工具
 
@@ -81,6 +82,11 @@ dsh plugin --profile desktop add "link:D:/DSH插件/projects/dsh-iter-memory"
 | `iter_feel` | 记一笔此刻的状态（`level` 0~1 + `why`）。这是唯一「我自己改自己」的入口。 |
 | `iter_set` | 改参数（只改传了的字段）。 |
 | `iter_now` | 不等骰子，立刻开口一次（测试用）。 |
+
+## v1.2 改了什么
+
+- 记忆那条线从「按条算」改成「按次算」：翻出来五条也只算一次。以前一次对话就够把潮位顶穿，现在一天最多加十分之三四。
+- 加了天花板 `moodMemoryCeiling`（默认 0.75）。记忆最多抬到这儿，剩下的留给「你跟我说过话」和自然衰减。已经高过天花板的分数，记忆不会反过来把它拉下来。
 
 ## v1.1 改了什么
 

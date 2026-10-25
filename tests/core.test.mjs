@@ -6,7 +6,7 @@ import {
   pickDelayMs, hourOf, inWindow, nextWindowStart, dayKey, clockHHMM, weekdayCN,
   decayedLevel, moodLabel, nudgeMood, setMood, moodFactor, effectiveSpeakProb,
   pushMoodPoint, curvePoints, pickAngle, composeWhisper, segmentsFor, gapMs, decide,
-  memoryBridgeStep,
+  memoryBridgeStep, applyMemoryLift,
 } from '../lib/core.js'
 
 const cfg = (o) => ({ ...DEFAULT_CFG, ...(o || {}) })
@@ -268,7 +268,7 @@ test('decide：潮位低的时候同样一次骰子更容易忍住', () => {
 
 // ───────────── 跟潮汐记忆搭的那条线 ─────────────
 
-test('memoryBridgeStep：它多命中一条我就抬一点，同样的事只抬一次', () => {
+test('memoryBridgeStep：它那边多注入一次我就抬一点，同样的一次只抬一下', () => {
   const c = cfg({ memoryBridge: true, moodMemoryBoost: 0.05 })
   const first = memoryBridgeStep(0, 1, c)
   assert.equal(first.boost, 0.05)
@@ -277,7 +277,7 @@ test('memoryBridgeStep：它多命中一条我就抬一点，同样的事只抬�
   assert.equal(memoryBridgeStep(first.seen, 1, c).boost, 0)
 })
 
-test('memoryBridgeStep：一次涨很多也有上限，别一晚上跳到顶', () => {
+test('memoryBridgeStep：一次涨很多也有上限，别一下跳到顶', () => {
   const c = cfg({ moodMemoryBoost: 0.05 })
   assert.equal(memoryBridgeStep(0, 10, c).boost, 0.15)
   const big = cfg({ moodMemoryBoost: 0.3 })
@@ -294,4 +294,22 @@ test('memoryBridgeStep：跨天归零只是把计数重设，不该扣分', () =
 test('memoryBridgeStep：关掉搭桥就完全不动', () => {
   const c = cfg({ memoryBridge: false, moodMemoryBoost: 0.05 })
   assert.equal(memoryBridgeStep(0, 3, c).boost, 0)
+})
+
+test('applyMemoryLift：正常往上抬，抬到天花板就停住', () => {
+  assert.equal(applyMemoryLift(0.5, 0.05, 0.75), 0.55)
+  assert.equal(applyMemoryLift(0.7, 0.05, 0.75), 0.75)
+  assert.equal(applyMemoryLift(0.74, 0.05, 0.75), 0.75)
+})
+
+test('applyMemoryLift：本来就高过天花板，不会因为记忆反而被拉下来', () => {
+  assert.equal(applyMemoryLift(0.9, 0.05, 0.75), 0.9)
+  assert.equal(applyMemoryLift(0.75, 0.05, 0.75), 0.75)
+})
+
+test('applyMemoryLift：没有抬升量、或参数离谱时都不出事', () => {
+  assert.equal(applyMemoryLift(0.5, 0, 0.75), 0.5)
+  assert.equal(applyMemoryLift(-3, 0.05, 0.75), 0.05)
+  assert.equal(applyMemoryLift(2, 0.05, 0.75), 1)
+  assert.equal(applyMemoryLift(0.5, 0.05, undefined), 0.55)
 })

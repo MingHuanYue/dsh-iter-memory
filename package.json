@@ -1,6 +1,6 @@
 {
   "name": "dsh-iter-memory",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "迭代记忆：记我自己。潮位会自己退回基线，不定时的那句读它、也改它；潮汐记忆翻出来的旧事被用上了，这边也会好受一点",
   "license": "MIT",
   "author": "MingHuanYue",
